@@ -1,0 +1,36 @@
+/* for combobox with so we can display the bootstrap dropdown */
+.select2-container .select2-selection--single {
+    box-sizing:border-box;
+    cursor:pointer;
+    display:block;
+    height:34px;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+.select2-container .select2-selection--single .select2-selection__rendered {
+    display:block;
+    padding-left:8px;
+    padding-right:20px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height:34px;
+    position:absolute;
+    top:1px;
+    right:1px;
+    width:20px;
+}
+
+
+.select2-container--default .select2-selection--single {
+    background-color:#fff;
+    border:1px solid #aaa;
+    border-radius:0px;
+
+}
+
+/** combo box themeing ends here **/
