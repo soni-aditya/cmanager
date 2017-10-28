@@ -16,6 +16,10 @@ class Extra_infoComponent extends Component
         $user = $object->request->getSession()->read('Auth.User');
         return $user['id'];
     }
+    public function getCurrentType($object){
+        $user = $object->request->getSession()->read('Auth.User');
+        return $user['type_id'];
+    }
     public function setCreatedBy($entity,$value){
         $entity->created_by=$value;
         return $entity;

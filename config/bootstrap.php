@@ -217,10 +217,10 @@ if (Configure::read('debug')) {
 }
 Plugin::load('AdminLTE', ['bootstrap' => true, 'routes' => true]);
 Configure::write('Theme', [
-    'title' => 'AdminLTE',
+    'title' => 'C-Manager',
     'logo' => [
-        'mini' => '<b>A</b>LT',
-        'large' => '<b>Admin</b>LTE'
+        'mini' => '<b>C</b>M',
+        'large' => '<b>C</b>Manager'
     ],
     'login' => [
         'show_remember' => true,
