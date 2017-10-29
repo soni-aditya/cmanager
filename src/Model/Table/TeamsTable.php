@@ -99,7 +99,7 @@ class TeamsTable extends Table
         $rules->add($rules->existsIn(['leader_id'], 'Leaders'));
         $rules->add($rules->existsIn(['project_id'], 'Projects'));
         $rules->add($rules->existsIn(['user_id'], 'Users'));
-
+        $rules->add($rules->isUnique(['user_id'], 'Users'));
         return $rules;
     }
 }
