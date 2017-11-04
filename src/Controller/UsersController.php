@@ -129,13 +129,17 @@ class UsersController extends AppController
         $this->viewBuilder()->setLayout('');
         if($this->request->is('post'))
         {
+
             $user=$this->Auth->identify();
-            $menus=$this->filterMenus($user['type_id']);
-            $user['menus']=$menus;
 //            debug($user);
 //            die();
             if($user)
             {
+                //Adding menus associated with the user
+                $menus=$this->filterMenus($user['type_id']);
+                $user['menus']=$menus;
+                //done
+                //Now we set the user information into session vaiable
                 $this->Auth->setUser($user);
 //                debug($user);
 //                die();

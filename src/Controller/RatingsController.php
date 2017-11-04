@@ -161,16 +161,50 @@ class RatingsController extends AppController
         return $users;
     }
     public function test(){
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        $currentUserType=$ExtraInfo->getCurrentType($this);
             if($this->request->is('post')){
+                //Recieving Data and arranging it
                 $data=$this->request->getData();
-                debug($data);
-                die();
-//                $entity=$this->Ratings->newEntity();
+                $avg_rating=$this->getAverageRatings($data);
+                $note=$data['note_of_advice'];
+                //done
+                //Saving User Data
+                $entity=$this->Ratings->newEntity();
+                $entity->user_id=$current_user;
+                $entity->reviever_id=$current_user;
+                $entity->rating_points=$avg_rating;
+                $entity->note_of_advice=$note;
+                $ExtraInfo->setCreatedBy($entity,$current_user);
+                $ExtraInfo->setModifiedBy($entity,$current_user);
 
+//                debug($entity);
+                if($avg_rating != 0 && $note != ''){
+                    if($this->Ratings->save($entity)){
+                        $this->Flash->success(__('Your Response Have Been Recorded'));
+                        return $this->redirect(['action' => 'index']);
+                    }
+                    $this->Flash->error('Some Error Occured in recording your Response. Please Try Sometime Later');
+                }
+                else{
+                    $this->Flash->error('Please Fill Out all the Details Properly');
+                }
             }
     }
 
+    protected function getAverageRatings($data){
+        $ratings=[];
+        for ($i=1;$i<6;$i++){
+            $rate=$this->getRatingValue($data["$i"]);
+            array_push($ratings,$rate);
+        }
+        $average_rating=array_sum($ratings)/count($ratings);
+        return $average_rating;
+    }
     protected function getRatingValue($rate_string){
-
+        $limits=explode(',',$rate_string);
+        $rating=$limits[1]-$limits[0];
+        return $rating;
     }
 }

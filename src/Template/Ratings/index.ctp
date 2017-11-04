@@ -31,9 +31,9 @@
               <tr>
                 <th><?= $this->Paginator->sort('id') ?></th>
                 <th><?= $this->Paginator->sort('user_id') ?></th>
-                <th><?= $this->Paginator->sort('reviever_id') ?></th>
+<!--                <th>--><?//= $this->Paginator->sort('reviever_id') ?><!--</th>-->
                 <th><?= $this->Paginator->sort('rating_points') ?></th>
-                <th><?= $this->Paginator->sort('created_by') ?></th>
+<!--                <th>--><?//= $this->Paginator->sort('created_by') ?><!--</th>-->
                 <th><?= __('Actions') ?></th>
               </tr>
             </thead>
@@ -42,9 +42,9 @@
               <tr>
                 <td><?= $this->Number->format($rating->id) ?></td>
                 <td><?= $rating->has('user') ? $this->Html->link($rating->user->id, ['controller' => 'Users', 'action' => 'view', $rating->user->id]) : '' ?></td>
-                <td><?= $this->Number->format($rating->reviever_id) ?></td>
+<!--                <td>--><?//= $this->Number->format($rating->reviever_id) ?><!--</td>-->
                 <td><?= $this->Number->format($rating->rating_points) ?></td>
-                <td><?= $this->Number->format($rating->created_by) ?></td>
+<!--                <td>--><?//= $this->Number->format($rating->created_by) ?><!--</td>-->
                 <td class="actions" style="white-space:nowrap">
                   <?= $this->Html->link(__('View'), ['action' => 'view', $rating->id], ['class'=>'btn btn-info btn-xs']) ?>
                   <?= $this->Html->link(__('Edit'), ['action' => 'edit', $rating->id], ['class'=>'btn btn-warning btn-xs']) ?>

@@ -46,8 +46,8 @@
                                        data-slider-selection="before" data-slider-tooltip="show" data-slider-id="blue">
                             </div>
                             <div class="col-sm-12">
+                                <hr>
                                 <div class="form-group input textarea required">
-                                    <br>
                                     <label for="note-of-advice">Note Of Advice</label>
                                     <textarea name="note_of_advice" class="form-control" required="required" id="note-of-advice" rows="5"></textarea>
                                 </div>

@@ -98,7 +98,7 @@ class RatingsTable extends Table
     {
         $rules->add($rules->existsIn(['user_id'], 'Users'));
         $rules->add($rules->existsIn(['reviever_id'], 'Revievers'));
-
+//        $rules->add($rules->isUnique(['user_id'], 'Users'),false);
         return $rules;
     }
 }

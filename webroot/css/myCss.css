@@ -1,0 +1,7 @@
+body{
+    background: url("../img/background.jpg") no-repeat fixed center !important;
+    overflow-y: hidden;
+}
+.login-box-body{
+    opacity: 0.9 !important;
+}
