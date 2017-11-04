@@ -116,7 +116,8 @@ class FeedbacksController extends AppController
             else{
                 $this->Flash->error('You don\'t have any need to give a Feedback.. your feedback won\'t be recorded');
             }
-        }//Here we get the type_id of the team leader for currently logged in user
+        }
+        //Here we get the type_id of the team leader for currently logged in user
         //than we get all those users who have type_id less than the type_id of the logged in user
         //Also those users must be a part of the team to which user belongs
         //In this way a user will be able to send the feedbacks to the users having better type (High ranking)

@@ -33,7 +33,9 @@
 </head>
 <body class="hold-transition login-page">
 <div class="register-box">
-   
+   <div class="login-box-header text-center">
+       <h1><strong>C</strong>Manager</h1>
+   </div>
     <div class="login-box-body">
 <!--        <p class="login-box-msg"><a href="/">Click here for more information</a></p>-->
 
@@ -83,17 +85,14 @@
 
 
         <!-- /.social-auth-links -->
-        <div class="row">
-            <div class="col-xs-6">
-                <a href="<?php echo $this->Url->build('/users/forgot-Password'); ?>" class="login-page-bottom-text-size"><b>Forgot password</a>
-               </div>
-            <div class="col-xs-6">
-                <a href="<?php echo $this->Url->build('/users/registration'); ?>" class="text-right login-page-bottom-text-size" style="float: right"><b>Register Business</a>
-            </div>
-
-
-
-    </div>
+<!--        <div class="row">-->
+<!--            <div class="col-xs-6">-->
+<!--                <a href="--><?php //echo $this->Url->build('/users/forgot-Password'); ?><!--" class="login-page-bottom-text-size"><b>Forgot password</a>-->
+<!--               </div>-->
+<!--            <div class="col-xs-6">-->
+<!--                <a href="--><?php //echo $this->Url->build('/users/registration'); ?><!--" class="text-right login-page-bottom-text-size" style="float: right"><b>Register Business</a>-->
+<!--            </div>-->
+<!--        </div>-->
     <!-- /.form-box -->
 </div>
 <!-- /.register-box -->
