@@ -66,7 +66,6 @@
          </form> --><?= $this->Flash->render() ?>
 
         <?= $this->Form->create() ?>
-<!--        --><?//= $this->Form->input('email', ['required' => true]) ?>
         <?= $this->Form->input('username', ['required' => true]) ?>
         <?= $this->Form->input('password', ['required' => true]) ?>
         <?= $this->Form->hidden('timezone',['id'=>'timezone']) ?>

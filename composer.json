@@ -11,7 +11,8 @@
         "cakephp/migrations": "~1.0",
         "cakephp/plugin-installer": "~1.0",
         "josegonzalez/dotenv": "2.*",
-        "maiconpinto/cakephp-adminlte-theme": "^1.0"
+        "maiconpinto/cakephp-adminlte-theme": "^1.0",
+        "friendsofcake/crud": "~4.0"
     },
     "require-dev": {
         "psy/psysh": "@stable",

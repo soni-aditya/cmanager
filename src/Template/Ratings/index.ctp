@@ -41,7 +41,7 @@
             <?php foreach ($ratings as $rating): ?>
               <tr>
                 <td><?= $this->Number->format($rating->id) ?></td>
-                <td><?= $rating->has('user') ? $this->Html->link($rating->user->id, ['controller' => 'Users', 'action' => 'view', $rating->user->id]) : '' ?></td>
+                <td><?= $rating->has('user') ? $this->Html->link($rating->user->first_name.' '.$rating->user->last_name, ['controller' => 'Users', 'action' => 'view', $rating->user->id]) : '' ?></td>
 <!--                <td>--><?//= $this->Number->format($rating->reviever_id) ?><!--</td>-->
                 <td><?= $this->Number->format($rating->rating_points) ?></td>
 <!--                <td>--><?//= $this->Number->format($rating->created_by) ?><!--</td>-->

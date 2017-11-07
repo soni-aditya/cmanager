@@ -230,3 +230,4 @@ Configure::write('Theme', [
     'folder' => ROOT,
     'skin' => 'blue' // default is 'blue'
 ]);
+Plugin::load('Crud');

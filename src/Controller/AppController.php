@@ -53,6 +53,14 @@ class AppController extends Controller
         //$this->loadComponent('Csrf');
         $this->loadComponent('Auth',[
             'authenticate'=>[
+                'Basic'=>[
+                    'userModel'=>'Users',
+                    'contain'=>['Types'],
+                    'fields'=>[
+                        'username'=>'username',
+
+                    ]
+                ],
                 'Form'=>[
                     'userModel'=>'Users',
                     'contain'=>['Types']
@@ -63,7 +71,7 @@ class AppController extends Controller
                 'action'=>'login'
             ],
             'loginRedirect'=>[
-                'controller'=>'Users',
+                'controller'=>'Dashboard',
                 'action'=>'index'
             ],
             'logoutRedirect'=>[
