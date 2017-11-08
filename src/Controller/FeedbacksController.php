@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Datasource\ConnectionManager;
 
 /**
  * Feedbacks Controller
@@ -163,5 +164,23 @@ class FeedbacksController extends AppController
             }
         }
         return $users;
+    }
+    public function reportJson(){
+        $this->viewBuilder()->setLayout('');
+        $connection=ConnectionManager::get('default');
+        $query_one="SELECT COUNT(id) FROM feedbacks";
+        $result_one=$connection->execute($query_one)->fetch('assoc');
+        $total_feedbacks=$result_one['COUNT(id)'];
+        $this->set(compact('total_feedbacks'));
+        $this->set('_serialize', ['total_feedbacks']);
+    }
+    public function read(){
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+
+        //Get the Feedbacks for Current User
+        $feedbacks=$this->Feedbacks->find('all')->where(['reciever_id'=>$current_user])->contain('Users');
+        $this->set(compact('feedbacks'));
+        $this->set('_serialize', ['feedbacks']);
     }
 }

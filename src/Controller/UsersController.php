@@ -3,6 +3,8 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use App\Controller\Component\Extra_infoComponent;
+use Cake\Datasource\ConnectionManager;
+use function MongoDB\BSON\toJSON;
 
 /**
  * Users Controller
@@ -129,21 +131,33 @@ class UsersController extends AppController
         $this->viewBuilder()->setLayout('');
         if($this->request->is('post'))
         {
-
             $user=$this->Auth->identify();
-//            debug($user);
-//            die();
+
             if($user)
             {
                 //Adding menus associated with the user
                 $menus=$this->filterMenus($user['type_id']);
                 $user['menus']=$menus;
                 //done
-                //Now we set the user information into session vaiable
-                $this->Auth->setUser($user);
-//                debug($user);
-//                die();
-                return $this->redirect($this->Auth->redirectUrl());
+                //checking if the request type is set or not
+                if(isset($this->request->getData()['rtype'])){
+                    //if request type is json
+                    if($this->request->getData()['rtype'] == 'json'){
+                        echo json_encode($user);
+                        die();
+                    }
+                    //if request is not json
+                    else{
+                        echo 'Please send a Json Request to proceed further';
+                        die();
+                    }
+                }
+                //if request type not set
+                else{
+                    //Now we set the user information into session vaiable
+                    $this->Auth->setUser($user);
+                    return $this->redirect($this->Auth->redirectUrl());
+                }
             }
             $this->Flash->error('You have entered wrong credentials');
         }
@@ -166,5 +180,14 @@ class UsersController extends AppController
     public function logout()
     {
         return $this->redirect($this->Auth->logout());
+    }
+    public function reportJson(){
+        $this->viewBuilder()->setLayout('');
+        $connection=ConnectionManager::get('default');
+        $query_one="SELECT COUNT(username) FROM users";
+        $result_one=$connection->execute($query_one)->fetch('assoc');
+        $total_users=$result_one['COUNT(username)'];
+        $this->set(compact('total_users'));
+        $this->set('_serialize', ['total_users']);
     }
 }

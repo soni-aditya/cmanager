@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Datasource\ConnectionManager;
 
 /**
  * Projects Controller
@@ -113,5 +114,45 @@ class ProjectsController extends AppController
             $this->Flash->error(__('The {0} could not be deleted. Please, try again.', 'Project'));
         }
         return $this->redirect(['action' => 'index']);
+    }
+    public function reportJson(){
+        $this->viewBuilder()->setLayout('');
+        $connection=ConnectionManager::get('default');
+        $query_one="SELECT COUNT(id) FROM projects";
+        $result_one=$connection->execute($query_one)->fetch('assoc');
+        $total_projects=$result_one['COUNT(id)'];
+        $this->set(compact('total_projects'));
+        $this->set('_serialize', ['total_projects']);
+    }
+    public function info(){
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+
+        $UserProjects=[];
+        $model=$this->loadModel('Teams');
+        $teams=$model->find('all')->where(['user_id'=>$current_user])->contain('Leaders');
+        foreach ($teams as $team){
+            $project=[];
+            $team_leader=$team->leader->first_name.' '.$team->leader->last_name;
+            $leader_id=$team->leader->id;
+            $project_id=$team->project_id;
+
+            $team_members=$this->getTeamInfo($leader_id,$model);
+            $this->getProjectInfo($project_id);
+        }
+        die();
+    }
+    protected function getTeamInfo($leader,$model){
+        $team=$model->find('all')->where(['leader_id'=>$leader])->contain('Users');
+        $members=[];
+        foreach ($team as $t){
+            $member_name=$t->user->first_name.' '.$t->user_last_name;
+            array_push($members,$member_name);
+        }
+//        debug($members);
+    }
+    protected function getProjectInfo($id){
+        $project_info=$this->Projects->get($id);
+        debug($project_info);
     }
 }

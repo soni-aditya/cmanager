@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Datasource\ConnectionManager;
 use function MongoDB\BSON\toJSON;
 
 /**
@@ -216,6 +217,281 @@ class RatingsController extends AppController
     }
     //This function sorts the data into the json format so that the graph can be drawn
     public function reportJson(){
+        $this->viewBuilder()->setLayout('');
+        $connection=ConnectionManager::get('default');
+        //Option 1 = compairing this week and last week
+        //Option 2 = compairing this month and last month
+        $option=$this->request->getQuery(['option']);
+//        $option=1;
+        if($option==1){
+            $dates=$this->getDates(3);
+        }
+        else if($option == 2){
+            $dates=$this->getDates(4);
+        }
+        //get the date and days set
+        $startdate_one=$dates[0][0];
+        $enddate_one=$dates[0][1];
+        $startdate_two=$dates[0][2];
+        $enddate_two=$dates[0][3];
+        $days=$dates[1];
+//        debug($startdate_one);
+//        debug($enddate_two);
+        //
+        //Getting datasets and arranging them according to the need
+        $query_one="SELECT AVG(rating_points),created FROM ratings WHERE created BETWEEN '$startdate_one' AND '$enddate_one' GROUP BY(created)";
+        $query_two="SELECT AVG(rating_points),created FROM ratings WHERE created BETWEEN '$startdate_two' AND '$enddate_two' GROUP BY(created)";
+        $results_one=$connection->execute($query_one)->fetchAll('assoc');
+        $results_two=$connection->execute($query_two)->fetchAll('assoc');
 
+        $dataset1=$this->generateData($results_two,$days,$startdate_two,$enddate_two);
+        $dataset2=$this->generateData($results_one,$days,$startdate_one,$enddate_one);
+        //
+        //Getting the highest rating value in the given date range
+        $query_three="SELECT MAX(rating_points) FROM ratings WHERE created BETWEEN '$startdate_one' AND '$enddate_one'";
+        $query_four="SELECT MAX(rating_points) FROM ratings WHERE created BETWEEN '$startdate_two' AND '$enddate_two'";
+        $results_three=$connection->execute($query_three)->fetchAll('assoc');
+        $results_four=$connection->execute($query_four)->fetchAll('assoc');
+        $highest_one=$this->prepareMaxData($results_three);
+        $highest_two=$this->prepareMaxData($results_four);
+        //Getting the lowest rating value in the given date range
+        $query_six="SELECT MIN(rating_points) FROM ratings WHERE created BETWEEN '$startdate_one' AND '$enddate_one'";
+        $query_seven="SELECT MIN(rating_points) FROM ratings WHERE created BETWEEN '$startdate_two' AND '$enddate_two'";
+        $results_six=$connection->execute($query_six)->fetchAll('assoc');
+        $results_seven=$connection->execute($query_seven)->fetchAll('assoc');
+        $lowest_one=$this->prepareMinData($results_six);
+        $lowest_two=$this->prepareMinData($results_seven);
+        //Getting overall average rating
+        $query_five="SELECT AVG(rating_points) FROM ratings";
+        $result_five=$connection->execute($query_five)->fetchAll('assoc');
+        $overall_avg=$this->prepareAvgData($result_five);
+        //
+        $this->set(compact('dataset2','dataset1','days','highest_one','highest_two','overall_avg','lowest_one','lowest_two'));
+        $this->set('_serialize', ['dataset1','dataset2','days','highest_one','highest_two','overall_avg','lowest_one','lowest_two']);
     }
+    ///Get the date range according to the choosen option
+    public function getDates($option)
+    {
+        $dates=[];
+        $days=[];
+        if($option ==0)
+        {
+            $dates[0]=Date('Y-m-d');
+            $dates[1]=$dates[0];
+            $dates[2]=Date('Y-m-d',strtotime('-1 day'));
+            $dates[3]=$dates[2];
+            $days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        }
+        else if($option == 1)
+        {
+            $dates[0]=Date('Y-m-d',strtotime('-1 day'));
+            $dates[1]=$dates[0];
+            $dates[2]=Date('Y-m-d',strtotime('-2 day'));
+            $dates[3]=$dates[2];
+            $days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        }
+        else if($option == 2)
+        {
+            $week_numbr1= date("W", strtotime('today'));
+            $week_numbr2= date("W", strtotime('last week'));
+            $year1=date('Y');
+            $year2=date('Y',strtotime('last week'));
+
+            array_push($dates,$this->getStartEndOfWeek($week_numbr2,$year2)[0]);
+            array_push($dates,$this->getStartEndOfWeek($week_numbr2,$year2)[1]);
+            array_push($dates,$this->getStartEndOfWeek($week_numbr1,$year1)[0]);
+            array_push($dates,$this->getStartEndOfWeek($week_numbr1,$year1)[1]);
+            $days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        }
+        else if($option == 3)
+        {
+            $week_numbr1= date("W", strtotime('-1 week'));
+            $week_numbr2= date("W", strtotime('-2 week'));
+            $year1=date('Y',strtotime('-1 week'));
+            $year2=date('Y',strtotime('-2 week'));
+
+            array_push($dates,$this->getStartEndOfWeek($week_numbr2,$year2)[0]);
+            array_push($dates,$this->getStartEndOfWeek($week_numbr2,$year2)[1]);
+            array_push($dates,$this->getStartEndOfWeek($week_numbr1,$year1)[0]);
+            array_push($dates,$this->getStartEndOfWeek($week_numbr1,$year1)[1]);
+            $days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+        }
+        else if($option == 4)
+        {
+            $current_first_date=date('Y-m-01');
+            $current_last_date=date('Y-m-t');
+            $last_first_date=date('Y-m-01',strtotime('-1 month'));
+            $last_last_date=date('Y-m-t',strtotime('-1 month'));
+
+            array_push($dates,$last_first_date);
+            array_push($dates,$last_last_date);
+            array_push($dates,$current_first_date);
+            array_push($dates,$current_last_date);
+            $days=$this->getDays(1,31);
+        }
+        else if($option == 5)
+        {
+            $current_first_date=date('Y-m-01',strtotime('-1 month'));
+            $current_last_date=date('Y-m-t',strtotime('-1 month'));
+            $last_first_date=date('Y-m-01',strtotime('-2 month'));
+            $last_last_date=date('Y-m-t',strtotime('-2 month'));
+
+            array_push($dates,$last_first_date);
+            array_push($dates,$last_last_date);
+            array_push($dates,$current_first_date);
+            array_push($dates,$current_last_date);
+            $days=$this->getDays(1,31);
+        }
+        else if($option == 6)
+        {
+            $current_first_date=date('Y-m-01');
+            $current_last_date=date('Y-m-t',strtotime('+2 month'));
+            $last_first_date=date('Y-m-01',strtotime('-3 month'));
+            $last_last_date=date('Y-m-t',strtotime('-1 month'));
+
+            array_push($dates,$last_first_date);
+            array_push($dates,$last_last_date);
+            array_push($dates,$current_first_date);
+            array_push($dates,$current_last_date);
+            $days=$this->getDays(1,90);
+        }
+        else if($option == 7)
+        {
+            $current_first_date=date('Y-m-01',strtotime('-3 month'));
+            $current_last_date=date('Y-m-t',strtotime('-1 month'));
+            $last_first_date=date('Y-m-01',strtotime('-6 month'));
+            $last_last_date=date('Y-m-t',strtotime('-4 month'));
+
+            array_push($dates,$last_first_date);
+            array_push($dates,$last_last_date);
+            array_push($dates,$current_first_date);
+            array_push($dates,$current_last_date);
+            $days=$this->getDays(1,90);
+        }
+        else if($option == 8)
+        {
+            $current_first_date=date('Y-01-01');
+            $current_last_date=date('Y-t-t');
+            $last_first_date=date('Y-01-01',strtotime('-1 year'));
+            $last_last_date=date('Y-t-t',strtotime('-1 year'));
+            array_push($dates,$last_last_date);
+            array_push($dates,$last_first_date);
+            array_push($dates,$current_last_date);
+            array_push($dates,$current_first_date);
+            $days=$this->getDays(1,366);
+        }
+        else if($option == 9)
+        {
+            $current_first_date=date('Y-01-01',strtotime('-1 year'));
+            $current_last_date=date('Y-t-t',strtotime('-1 year'));
+            $last_first_date=date('Y-01-01',strtotime('-2 year'));
+            $last_last_date=date('Y-t-t',strtotime('-2 year'));
+
+            array_push($dates,$last_last_date);
+            array_push($dates,$last_first_date);
+            array_push($dates,$current_last_date);
+            array_push($dates,$current_first_date);
+            $days=$this->getDays(1,366);
+        }
+        //        debug($dates);
+        //        die();
+        return [$dates,$days];
+    }
+    /// Get the start and end date of a week according to its week number
+    function getStartEndOfWeek($week, $year)
+    {
+        $time = strtotime("1 January $year", time());
+        $day = date('w', $time);
+        $time += ((7*$week)+1-$day)*24*3600;
+        $dates[0] = date('Y-n-j', $time);
+        $time += 6*24*3600;
+        $dates[1] = date('Y-n-j', $time);
+        return $dates;
+    }
+    ///
+    /// Get the Day Numbers
+    function getDays($startDay,$endDay)
+    {
+        $days=[];
+        $i=0;
+        while ($i< $endDay)
+        {
+            $days[$i]=$i+1;
+            $i++;
+        }
+        return $days;
+    }
+    ///
+    /// Generating data sets
+    public function generateData($result,$days,$start_date,$end_date)
+    {
+//        $dataset=[];
+        $datas=[];
+        $days_to_plot=[];
+        $date_range=$this->getDateRanges($start_date,$end_date);
+
+        for ($i=0;$i<count($days);$i++){
+            $days_to_plot[$i]=$days[$i];
+            $datas[$i]=0;
+            if(isset($date_range[$i])){
+                for ($j=0;$j<count($result);$j++){
+                    if(!strcmp($result[$j]['created'],$date_range[$i])){
+                        $datas[$i]=number_format($result[$j]['AVG(rating_points)'],2,'.','');
+                    }
+                }
+            }
+            else{
+                continue;
+            }
+        }
+//        array_push($dataset,$datas);
+//        array_push($dataset,$days_to_plot);
+        return $datas;
+    }
+    /// Get the DAte reanges
+    function getDateRanges($start_date,$end_date)
+    {
+        // Specify the start date. This date can be any English textual format
+        $date_from = $start_date;
+        $date_from = strtotime($date_from); // Convert date to a UNIX timestamp
+
+        // Specify the end date. This date can be any English textual format
+        $date_to = $end_date;
+        $date_to = strtotime($date_to); // Convert date to a UNIX timestamp
+
+        $date_ranges=[];
+        // Loop from the start date to end date and output all dates inbetween
+        for ($i=$date_from; $i<=$date_to; $i+=86400)
+        {
+            array_push($date_ranges,date("Y-m-d", $i)) ;
+        }
+        return $date_ranges;
+    }
+    ///
+    /// Prepare the max datas
+    function prepareMaxData($data){
+        if(isset($data)){
+            return number_format($data[0]['MAX(rating_points)'],2,'.','');
+        }
+        else{
+            return 0;
+        }
+    }
+    function prepareAvgData($data){
+        if(isset($data)){
+            return number_format($data[0]['AVG(rating_points)'],2,'.','');
+        }
+        else{
+            return 0;
+        }
+    }
+    function prepareMinData($data){
+        if(isset($data)){
+            return number_format($data[0]['MIN(rating_points)'],2,'.','');
+        }
+        else{
+            return 0;
+        }
+    }
+    ///
 }
