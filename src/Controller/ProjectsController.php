@@ -138,9 +138,17 @@ class ProjectsController extends AppController
             $project_id=$team->project_id;
 
             $team_members=$this->getTeamInfo($leader_id,$model);
-            $this->getProjectInfo($project_id);
+            $proj=$this->getProjectInfo($project_id);
+
+            $project['leader']=$team_leader;
+            $project['team']=$team_members;
+            $project['title']=$proj->title;
+            $project['content']=$proj->description;
+
+            array_push($UserProjects,$project);
         }
-        die();
+        $this->set(compact('UserProjects'));
+        $this->set('_serialize', ['UserProjects']);
     }
     protected function getTeamInfo($leader,$model){
         $team=$model->find('all')->where(['leader_id'=>$leader])->contain('Users');
@@ -149,10 +157,10 @@ class ProjectsController extends AppController
             $member_name=$t->user->first_name.' '.$t->user_last_name;
             array_push($members,$member_name);
         }
-//        debug($members);
+        return $members;
     }
     protected function getProjectInfo($id){
         $project_info=$this->Projects->get($id);
-        debug($project_info);
+        return $project_info;
     }
 }

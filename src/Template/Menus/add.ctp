@@ -28,7 +28,7 @@
             echo $this->Form->input('name');
             echo $this->Form->input('lft');
             echo $this->Form->input('rght');
-            echo $this->Form->input('parent_id', ['options' => $parentMenus]);
+            echo $this->Form->input('parent_id', ['options' => $parentMenus,'empty' =>true]);
             echo $this->Form->input('has_child');
             echo $this->Form->input('display');
             echo $this->Form->input('menu_order');

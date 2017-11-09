@@ -138,6 +138,8 @@ class UsersController extends AppController
                 //Adding menus associated with the user
                 $menus=$this->filterMenus($user['type_id']);
                 $user['menus']=$menus;
+//                debug($user);
+//                die();
                 //done
                 //checking if the request type is set or not
                 if(isset($this->request->getData()['rtype'])){
@@ -166,15 +168,16 @@ class UsersController extends AppController
         $user_menus=[];
         $m=$this->loadModel('Menus');
         $menus=$m->find('threaded')->contain('Types')->where(['display'=>1]);
+        debug($typeID);
         foreach ($menus as $menu) {
-//            debug($menu->types[0]->id);
-            if($menu->types[0]->id == $typeID)
-                array_push($user_menus,$menu);
-            else
-                continue;
+//            debug($menu);
+            foreach ($menu->types as $menu_type){
+                if($menu_type->id == $typeID)
+                    array_push($user_menus,$menu);
+                else
+                    continue;
+            }
         }
-//        debug($typeID);
-//        die();
         return $user_menus;
     }
     public function logout()
@@ -189,5 +192,55 @@ class UsersController extends AppController
         $total_users=$result_one['COUNT(username)'];
         $this->set(compact('total_users'));
         $this->set('_serialize', ['total_users']);
+    }
+    public function info(){
+        $user = $this->request->getSession()->read('Auth.User');
+        $feedbacks=$this->getFeedbacks();
+        $this->set(compact('user','feedbacks'));
+        $this->set('_serialize', ['user','feedbacks']);
+    }
+    protected function getFeedbacks(){
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        $model=$this->loadModel('Feedbacks');
+        $feedbacks=$model->find('all')->where(['user_id'=>$current_user])->contain('Recievers');
+        return $feedbacks;
+    }
+    protected function getTotalProjects(){
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+
+        $UserProjects=[];
+        $model=$this->loadModel('Teams');
+        $teams=$model->find('all')->where(['user_id'=>$current_user])->contain('Leaders');
+        foreach ($teams as $team){
+            $project=[];
+            $team_leader=$team->leader->first_name.' '.$team->leader->last_name;
+            $leader_id=$team->leader->id;
+            $project_id=$team->project_id;
+
+            $team_members=$this->getTeamInfo($leader_id,$model);
+            $proj=$this->getProjectInfo($project_id);
+
+            $project['leader']=$team_leader;
+            $project['team']=$team_members;
+            $project['title']=$proj->title;
+            $project['content']=$proj->description;
+
+            array_push($UserProjects,$project);
+        }
+    }
+    protected function getTeamInfo($leader,$model){
+        $team=$model->find('all')->where(['leader_id'=>$leader])->contain('Users');
+        $members=[];
+        foreach ($team as $t){
+            $member_name=$t->user->first_name.' '.$t->user_last_name;
+            array_push($members,$member_name);
+        }
+        return $members;
+    }
+    protected function getProjectInfo($id){
+        $project_info=$this->Projects->get($id);
+        return $project_info;
     }
 }
