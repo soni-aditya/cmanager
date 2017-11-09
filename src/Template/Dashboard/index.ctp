@@ -7,6 +7,9 @@
                 <div class="inner">
                     <h3>
                         <span id="totalProj">00</span>
+                        <span class="overlay" id="totalPLoader">
+                            <i class="fa fa-refresh fa-spin"></i>
+                        </span>
                     </h3>
 
                     <p>Projects at Hand</p>
@@ -25,6 +28,9 @@
                     <h3>
                         <span id="overall_rating">00</span>
                         <sup style="font-size: 20px">%</sup>
+                        <span class="overlay" id="totalRLoader">
+                            <i class="fa fa-refresh fa-spin"></i>
+                        </span>
                     </h3>
 
                     <p>Overall Ratings</p>
@@ -42,6 +48,9 @@
                 <div class="inner">
                     <h3>
                         <span id="totalEmp">00</span>
+                        <span class="overlay" id="totalELoader">
+                            <i class="fa fa-refresh fa-spin"></i>
+                        </span>
                     </h3>
 
                     <p>Total Employees</p>
@@ -59,6 +68,9 @@
                 <div class="inner">
                     <h3>
                         <span id="totalFeedbacks">00</span>
+                        <span class="overlay" id="totalFLoader">
+                            <i class="fa fa-refresh fa-spin"></i>
+                        </span>
                     </h3>
 
                     <p>Today's Feedbacks</p>
@@ -96,6 +108,9 @@
                             <div class="chart" id="chart_draw_block">
                                 <!-- Sales Chart Canvas -->
                                 <canvas id="rateChart" style="height: 180px;"></canvas>
+                                <span class="overlay" id="ChartLoader">
+                                    <i class="fa fa-refresh fa-spin"></i>
+                                </span>
                             </div>
                             <!-- /.chart-responsive -->
                         </div>
@@ -138,6 +153,10 @@
                                 <span class="description-header">LOWEST RATING</span>
                                 <p class="description-text text-danger" id="currentLowVal">0</p>
                             </div>
+
+                            <div class="overlay" id="SideDetailLoader">
+                                <i class="fa fa-refresh fa-spin"></i>
+                            </div>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -161,6 +180,10 @@
 
             if(mode === 'Monthly Ratings')
             {
+                //Show Loader
+                $('#ChartLoader').show();
+                $('#SideDetailLoader').show();
+                //
                 drawChart(2);
                 $('#mode').html('Weekly Ratings');
                 $('#BoxHead').html('Monthly Ratings Analogy');
@@ -169,6 +192,10 @@
             }
             else
             {
+                //Show Loader
+                $('#ChartLoader').show();
+                $('#SideDetailLoader').show();
+                //
                 drawChart(1);
                 $('#mode').html('Monthly Ratings');
                 $('#BoxHead').html('Weekly Ratings Analogy');
@@ -176,6 +203,8 @@
                 $('#currentMode').html('CURRENT WEEK');
             }
         });
+
+
         setTotalEmployees();
         setTotalFeedbacks();
         setTotalProjects();
@@ -233,6 +262,12 @@
 
                 //getting percentage of overall rating
                 $('#overall_rating').html(info[5]*10)
+
+                //Hiding Loader
+
+                $('#totalRLoader').hide();
+                $('#ChartLoader').hide();
+                $('#SideDetailLoader').hide();
             },
             error   :function (data) {
 
@@ -246,6 +281,7 @@
             success :function (data) {
                 var info =$.parseJSON(data);
                 $('#totalProj').html(info[0]);
+                $('#totalPLoader').hide();
             },
             error   :function (data) {
 
@@ -259,6 +295,7 @@
             success :function (data) {
                 var info =$.parseJSON(data);
                 $('#totalEmp').html(info[0]);
+                $('#totalELoader').hide();
             },
             error   :function (data) {
 
@@ -272,6 +309,7 @@
             success :function (data) {
                 var info =$.parseJSON(data);
                 $('#totalFeedbacks').html(info[0]);
+                $('#totalFLoader').hide();
             },
             error   :function (data) {
 

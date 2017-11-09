@@ -18,17 +18,19 @@ if (!file_exists($file)) {
         foreach ($menus as $menu): {
 
             if (count($menu['children']) == 0) {
-                echo '<li><a href="' . $this->Url->build(''. $menu['url'] ) . '"><span>' . $menu['name'] . '</span></a></li>';
+                echo '<li><a href="' . $this->Url->build(''. $menu['url'] ) . '">
+                            <span>' . $menu['name'] . '</span><i class="ion ion-pound pull-left text-aqua"></i>
+                        </a></li>';
             } else {
 
                 echo '<li class="treeview">' .
                     '<a href="#">' .
-                    '<span>' . $menu['name'] . '</span> <i class="fa fa-angle-left pull-right"></i>' .
+                    '<span>' . $menu['name'] . '</span><i class="ion ion-pound pull-left text-danger"></i> <i class="fa fa-angle-left pull-right"></i>' .
                     '</a>' .
                     '<ul class="treeview-menu">';
 
                 foreach ($menu['children'] as $menu): {
-                    echo '<li><a href="' . $this->Url->build(''. $menu['url'] ) . '"><i class="fa fa-circle-o"></i> ' . $menu['name'] . '</a></li>';
+                    echo '<li><a href="' . $this->Url->build(''. $menu['url'] ) . '"><i class="fa fa-circle-o text-aqua"></i> ' . $menu['name'] . '</a></li>';
                 }
                 endforeach;
 
