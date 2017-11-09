@@ -123,7 +123,12 @@
 
 
     });
-
+    //Disabeling the page from scrolling
+    //Temperorly
+    $('html, body').css({
+        overflow: 'hidden',
+        height: '100%'
+    });
 
 </script>
 
