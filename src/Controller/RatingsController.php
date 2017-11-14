@@ -86,7 +86,7 @@ class RatingsController extends AppController
                 try{
                     if($this->Ratings->save($entity)){
                         $this->Flash->success(__('Your Response Have Been Recorded'));
-                        return $this->redirect(['action' => 'index']);
+                        return $this->redirect(['controller'=>'Dashboard','action' => 'index']);
                     }
                     $this->Flash->error('Some Error Occured in recording your Response. Please Try Sometime Later');
                 }catch (\Exception $e){

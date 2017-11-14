@@ -67,7 +67,7 @@ class FeedbacksController extends AppController
             if($feedback->reciever_id != 0){
                 if ($this->Feedbacks->save($feedback)) {
                     $this->Flash->success(__('The {0} has been saved.', 'Feedback'));
-                    return $this->redirect(['action' => 'index']);
+                    return $this->redirect(['controller'=>'Dashboard','action' => 'index']);
                 } else {
                     $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'Feedback'));
                 }
