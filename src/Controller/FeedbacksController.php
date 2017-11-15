@@ -180,7 +180,7 @@ class FeedbacksController extends AppController
         $current_user=$ExtraInfo->getCurrentUser($this);
 
         //Get the Feedbacks for Current User
-        $feedbacks=$this->Feedbacks->find('all')->where(['reciever_id'=>$current_user])->contain('Users');
+        $feedbacks=$this->Feedbacks->find('all')->where(['reciever_id'=>$current_user])->contain('Users')->orderDesc('Feedbacks.id');
         $this->set(compact('feedbacks'));
         $this->set('_serialize', ['feedbacks']);
     }

@@ -21,6 +21,10 @@
                             <h3 class="box-title">
                                 <?php echo $feedback->title; ?>
                             </h3>
+                            <span class="pull-right">
+                                 <strong>On</strong>  &nbsp;&nbsp;
+                                <?php echo $feedback->created; ?>
+                            </span>
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body">
