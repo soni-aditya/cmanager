@@ -168,7 +168,7 @@ class UsersController extends AppController
         $user_menus=[];
         $m=$this->loadModel('Menus');
         $menus=$m->find('threaded')->contain('Types')->where(['display'=>1]);
-        debug($typeID);
+//        debug($typeID);
         foreach ($menus as $menu) {
 //            debug($menu);
             foreach ($menu->types as $menu_type){

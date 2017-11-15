@@ -261,7 +261,8 @@
                 $('#currentLowVal').html(info[6]);
 
                 //getting percentage of overall rating
-                $('#overall_rating').html(info[5]*10)
+                var overall_rating=Math.round(info[5]*1000)/100;
+                $('#overall_rating').html(overall_rating);
 
                 //Hiding Loader
 
