@@ -28,13 +28,24 @@ class UsersController extends AppController
 
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Types']
-        ];
-        $users = $this->paginate($this->Users);
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11){
+            $this->paginate = [
+                'contain' => ['Types']
+            ];
+            $users = $this->paginate($this->Users);
 
-        $this->set(compact('users'));
-        $this->set('_serialize', ['users']);
+            $this->set(compact('users'));
+            $this->set('_serialize', ['users']);
+        }
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
 
     /**
@@ -46,12 +57,23 @@ class UsersController extends AppController
      */
     public function view($id = null)
     {
-        $user = $this->Users->get($id, [
-            'contain' => ['Types']
-        ]);
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11) {
+            $user = $this->Users->get($id, [
+                'contain' => ['Types']
+            ]);
 
-        $this->set('user', $user);
-        $this->set('_serialize', ['user']);
+            $this->set('user', $user);
+            $this->set('_serialize', ['user']);
+        }
+            //If its not admin user than redirect him
+        else{
+                $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+            }
     }
 
     /**
@@ -61,23 +83,34 @@ class UsersController extends AppController
      */
     public function add()
     {
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
         $ExtraInfo=$this->loadComponent('Extra_info');
-        $user = $this->Users->newEntity();
-        if ($this->request->is('post')) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            $current_user=$ExtraInfo->getCurrentUser($this);
-            $ExtraInfo->setCreatedBy($user,$current_user);
-            $ExtraInfo->setModifiedBy($user,$current_user);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The {0} has been saved.', 'User'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'User'));
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11) {
+            $ExtraInfo=$this->loadComponent('Extra_info');
+            $user = $this->Users->newEntity();
+            if ($this->request->is('post')) {
+                $user = $this->Users->patchEntity($user, $this->request->getData());
+                $current_user=$ExtraInfo->getCurrentUser($this);
+                $ExtraInfo->setCreatedBy($user,$current_user);
+                $ExtraInfo->setModifiedBy($user,$current_user);
+                if ($this->Users->save($user)) {
+                    $this->Flash->success(__('The {0} has been saved.', 'User'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'User'));
+                }
             }
+            $types = $this->Users->Types->find('list', ['limit' => 200]);
+            $this->set(compact('user', 'types'));
+            $this->set('_serialize', ['user']);
         }
-        $types = $this->Users->Types->find('list', ['limit' => 200]);
-        $this->set(compact('user', 'types'));
-        $this->set('_serialize', ['user']);
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
 
     /**
@@ -89,24 +122,35 @@ class UsersController extends AppController
      */
     public function edit($id = null)
     {
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
         $ExtraInfo=$this->loadComponent('Extra_info');
-        $user = $this->Users->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $this->Users->patchEntity($user, $this->request->getData());
-            $current_user=$ExtraInfo->getCurrentUser($this);
-            $ExtraInfo->setModifiedBy($user,$current_user);
-            if ($this->Users->save($user)) {
-                $this->Flash->success(__('The {0} has been saved.', 'User'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'User'));
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11) {
+            $ExtraInfo=$this->loadComponent('Extra_info');
+            $user = $this->Users->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $user = $this->Users->patchEntity($user, $this->request->getData());
+                $current_user=$ExtraInfo->getCurrentUser($this);
+                $ExtraInfo->setModifiedBy($user,$current_user);
+                if ($this->Users->save($user)) {
+                    $this->Flash->success(__('The {0} has been saved.', 'User'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'User'));
+                }
             }
+            $types = $this->Users->Types->find('list', ['limit' => 200]);
+            $this->set(compact('user', 'types'));
+            $this->set('_serialize', ['user']);
         }
-        $types = $this->Users->Types->find('list', ['limit' => 200]);
-        $this->set(compact('user', 'types'));
-        $this->set('_serialize', ['user']);
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
 
     /**
@@ -118,14 +162,25 @@ class UsersController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $user = $this->Users->get($id);
-        if ($this->Users->delete($user)) {
-            $this->Flash->success(__('The {0} has been deleted.', 'User'));
-        } else {
-            $this->Flash->error(__('The {0} could not be deleted. Please, try again.', 'User'));
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11) {
+            $this->request->allowMethod(['post', 'delete']);
+            $user = $this->Users->get($id);
+            if ($this->Users->delete($user)) {
+                $this->Flash->success(__('The {0} has been deleted.', 'User'));
+            } else {
+                $this->Flash->error(__('The {0} could not be deleted. Please, try again.', 'User'));
+            }
+            return $this->redirect(['action' => 'index']);
         }
-        return $this->redirect(['action' => 'index']);
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
     public function login(){
         $this->viewBuilder()->setLayout('');
