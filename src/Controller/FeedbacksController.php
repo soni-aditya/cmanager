@@ -169,7 +169,9 @@ class FeedbacksController extends AppController
     public function reportJson(){
         $this->viewBuilder()->setLayout('');
         $connection=ConnectionManager::get('default');
-        $query_one="SELECT COUNT(id) FROM feedbacks";
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        $query_one="SELECT COUNT(id) FROM feedbacks WHERE reciever_id='$current_user'";
         $result_one=$connection->execute($query_one)->fetch('assoc');
         $total_feedbacks=$result_one['COUNT(id)'];
         $this->set(compact('total_feedbacks'));

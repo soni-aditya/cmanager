@@ -73,7 +73,9 @@
                         </span>
                     </h3>
 
-                    <p>Today's Feedbacks</p>
+                    <p>
+                        Feedbacks
+                    </p>
                 </div>
                 <div class="icon">
                     <i class="ion ion-map"></i>

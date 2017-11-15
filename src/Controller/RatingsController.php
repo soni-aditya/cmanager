@@ -27,13 +27,24 @@ class RatingsController extends AppController
 
     public function index()
     {
-        $this->paginate = [
-            'contain' => ['Users', 'Revievers']
-        ];
-        $ratings = $this->paginate($this->Ratings);
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11){
+            $this->paginate = [
+                'contain' => ['Users', 'Revievers']
+            ];
+            $ratings = $this->paginate($this->Ratings);
 
-        $this->set(compact('ratings'));
-        $this->set('_serialize', ['ratings']);
+            $this->set(compact('ratings'));
+            $this->set('_serialize', ['ratings']);
+        }
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
 
     /**
@@ -45,12 +56,23 @@ class RatingsController extends AppController
      */
     public function view($id = null)
     {
-        $rating = $this->Ratings->get($id, [
-            'contain' => ['Users', 'Revievers']
-        ]);
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11){
+            $rating = $this->Ratings->get($id, [
+                'contain' => ['Users', 'Revievers']
+            ]);
 
-        $this->set('rating', $rating);
-        $this->set('_serialize', ['rating']);
+            $this->set('rating', $rating);
+            $this->set('_serialize', ['rating']);
+        }
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
 
     /**
@@ -108,35 +130,46 @@ class RatingsController extends AppController
      */
     public function edit($id = null)
     {
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
         $ExtraInfo=$this->loadComponent('Extra_info');
         $current_user=$ExtraInfo->getCurrentUser($this);
-        $currentUserType=$ExtraInfo->getCurrentType($this);
-        $rating = $this->Ratings->get($id, [
-            'contain' => []
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $rating = $this->Ratings->patchEntity($rating, $this->request->data);
-            $ExtraInfo->setModifiedBy($rating,$current_user);
-            if ($this->Ratings->save($rating)) {
-                $this->Flash->success(__('The {0} has been saved.', 'Rating'));
-                return $this->redirect(['action' => 'index']);
-            } else {
-                $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'Rating'));
+        if($current_user==11){
+            $ExtraInfo=$this->loadComponent('Extra_info');
+            $current_user=$ExtraInfo->getCurrentUser($this);
+            $currentUserType=$ExtraInfo->getCurrentType($this);
+            $rating = $this->Ratings->get($id, [
+                'contain' => []
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $rating = $this->Ratings->patchEntity($rating, $this->request->data);
+                $ExtraInfo->setModifiedBy($rating,$current_user);
+                if ($this->Ratings->save($rating)) {
+                    $this->Flash->success(__('The {0} has been saved.', 'Rating'));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->Flash->error(__('The {0} could not be saved. Please, try again.', 'Rating'));
+                }
             }
+            //Here we get the type_id of the team leader for currently logged in user
+            //than we get all those users who have type_id less than the type_id of the logged in user
+            //Also those users must be a part of the team to which user belongs
+            //In this way a user will be able to send the ratings to the users having better type (High ranking)
+            $leader=$ExtraInfo->getTeamLeader($this,$current_user);
+            $users=$this->getHigherMembersOfTeam($leader,$current_user,$currentUserType);
+            //done
+
+
+    //        $users = $this->Ratings->Users->find('list', ['limit' => 200]);
+            $revievers = $this->Ratings->Revievers->find('list', ['limit' => 200]);
+            $this->set(compact('rating', 'users', 'revievers'));
+            $this->set('_serialize', ['rating']);
         }
-        //Here we get the type_id of the team leader for currently logged in user
-        //than we get all those users who have type_id less than the type_id of the logged in user
-        //Also those users must be a part of the team to which user belongs
-        //In this way a user will be able to send the ratings to the users having better type (High ranking)
-        $leader=$ExtraInfo->getTeamLeader($this,$current_user);
-        $users=$this->getHigherMembersOfTeam($leader,$current_user,$currentUserType);
-        //done
-
-
-//        $users = $this->Ratings->Users->find('list', ['limit' => 200]);
-        $revievers = $this->Ratings->Revievers->find('list', ['limit' => 200]);
-        $this->set(compact('rating', 'users', 'revievers'));
-        $this->set('_serialize', ['rating']);
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
 
     /**
@@ -148,14 +181,25 @@ class RatingsController extends AppController
      */
     public function delete($id = null)
     {
-        $this->request->allowMethod(['post', 'delete']);
-        $rating = $this->Ratings->get($id);
-        if ($this->Ratings->delete($rating)) {
-            $this->Flash->success(__('The {0} has been deleted.', 'Rating'));
-        } else {
-            $this->Flash->error(__('The {0} could not be deleted. Please, try again.', 'Rating'));
+        //Check if its admin or not
+        //In our DB the id for the admin user is 11 ,so we will check that only
+        //admin user --  (username= imadmin , password = admin)
+        $ExtraInfo=$this->loadComponent('Extra_info');
+        $current_user=$ExtraInfo->getCurrentUser($this);
+        if($current_user==11){
+            $this->request->allowMethod(['post', 'delete']);
+            $rating = $this->Ratings->get($id);
+            if ($this->Ratings->delete($rating)) {
+                $this->Flash->success(__('The {0} has been deleted.', 'Rating'));
+            } else {
+                $this->Flash->error(__('The {0} could not be deleted. Please, try again.', 'Rating'));
+            }
+            return $this->redirect(['action' => 'index']);
         }
-        return $this->redirect(['action' => 'index']);
+        //If its not admin user than redirect him
+        else{
+            $this->redirect(['controller'=>'Dashboard','action'=>'index']);
+        }
     }
     //This function gets all the members of the team to which user belongs and
     //than it gets those users whose type_id is less than the user's type_id
